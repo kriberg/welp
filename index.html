@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>welp</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link href="css/blog-home.css" rel="stylesheet">
+        <link rel="stylesheet" href="css/welp.css">
+        <script src="//code.jquery.com/jquery.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script></script>
+        <script src="js/libs/knockout-2.3.0.js"></script>
+        <script src="js/solarsystems.js"></script>
+        <script src="js/mapsolarsystems.js"></script>
+        <script src="js/types.js"></script>
+        <script src="settings.js"></script>
+    </head>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html">Welp</a>
+            </div>
+
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <!--<li><a href="#doctrines">Doctrines</a></li>
+                    <li><a href="#settings">Settings</a></li>-->
+                    <li><a href="https://github.com/kriberg/welp/">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="export-overlay" data-bind="visible: showExport">
+            <div class="row text-center">
+                <button class="btn btn-primary" data-bind="click: closeExport">Close</button>
+            </div>
+            <div class="row text-center col-md-12">
+                <textarea class="form-control" rows="20" data-bind="value: exportdata"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 row pager">
+                <div class="text-left col-md-5">
+                    <button class="btn btn-xs btn-info" data-bind="click: older">&larr; Older</button> <small data-bind="text: oldestMail"></small>
+                </div>
+                <div class="text-center col-md-2">
+                    Page <span data-bind="text: pagenumber"></span>
+                </div>
+                <div class="text-right col-md-5">
+                    <small data-bind="text: newestMail"></small> <button class="btn btn-xs btn-info" data-bind="click: newer, enable: welp.pagenumber() > 1">Newer &rarr;</button>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div id="killMailList" data-bind="foreach: killmails" class="col-md-offset-1">
+                    <div class="killmail">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <ul class="list-unstyled">
+                                    <li><span class="glyphicon glyphicon-user"></span> <span data-bind="text: victim"></span></li>
+                                    <li><img data-bind="attr: {src: corporationImage}" alt="" /> <span data-bind="text: corporation"></span></li>
+                                    <li><span class="glyphicon glyphicon-certificate"></span> <span data-bind="text: solarSystemID"></span></li>
+                                    <li><span class="glyphicon glyphicon-time"></span> <span data-bind="text: killTime"></span></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-7 shipview">
+                                <img data-bind="attr: {src: shipImage}" alt="ship">
+                                Ship: <span data-bind="text: ship"></span><br>
+                                Doctrine: <span data-bind="text: doctrine"></span>
+                            </div>
+                        </div>
+                        <div class="row col-md-12">
+                            <div class="text-left">
+                                <a data-bind="text: killMailLink, attr: {href: killMailLink}"></a>
+                            </div>
+                            <div class="text-right">
+                                <!--<button class="btn btn-xs btn-info">Inspect <span class="glyphicon glyphicon-zoom-in"></span></button>-->
+                                <button class="btn btn-xs btn-primary" data-bind="click: $parent.addKillMail, attr: {disabled: onReimbursementTab}">Add <span class="glyphicon glyphicon-plus-sign"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="well filters">
+                    <h4>Filter losses</h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="text" placeholder="Solar system" class="form-control" id="inputSolarsystem" data-bind="text: solarsystem, value: solarsystem, valueUpdate: 'keyup', event: {keyup: checkSystemName}"></input>
+                        </div>
+                    </div>
+<!--                    <div class="row">
+                        <div class="col-md-6">
+                            <input placeholder="From date" type="date" class="form-control" id="startDate"></input>
+                        </div>
+                        <div class="col-md-6">
+                            <input placeholder="To date" type="date" class="form-control" id="endDate"></input>
+                        </div>
+                    </div>-->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="checkbox" class="form-control col-md-1" id="inputAPIOnly" data-bind="attr: {checked: apionly}"></input>
+                            <label for="inputAPIOnly" class="control-label col-md-6">API only</label>
+                            <div class="text-right">
+                                <button class="btn btn-default" id="filter" data-bind="click: updateKillMails, disable: filterDisabled">Filter <span class="glyphicon glyphicon-search"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="well srp-list">
+                    <h4>Reimbursment list</h4>
+                    <input type="text" class="form-control" placeholder="Fleet commander" id="fleet-commander" data-bind="value: fleetcommander"></input>
+                    <input type="text" class="form-control" placeholder="Fleet name" id="fleet-name" data-bind="value: fleetname"></input>
+                    <div class="text-right">
+                        <button class="btn btn-xs btn-danger" data-bind="click: clearList">Clear list</button>
+                        <button class="btn btn-xs btn-success" data-bind="click: openExport">Export list</button>
+                    </div>
+                    <hr>
+                    <div class="srp-request">
+                        <ul class="list-unstyled" data-bind="foreach: reimbursementTab">
+                            <li data-bind="text: killTime"></li>
+                            <li data-bind="text: victim"></li>
+                            <li data-bind="text: ship"></li>
+                            <li><a data-bind="attr: {href: killMailLink}, text: killMailLink"></a></li>
+                            <li><button class="btn btn-danger btn-xs" data-bind="click: $parent.removeKillMail">Remove</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 row pager">
+                <div class="text-left col-md-5">
+                    <button class="btn btn-xs btn-info" data-bind="click: older">&larr; Older</button> <small data-bind="text: oldestMail"></small>
+                </div>
+                <div class="text-center col-md-2">
+                    Page <span data-bind="text: pagenumber"></span>
+                </div>
+                <div class="text-right col-md-5">
+                    <small data-bind="text: newestMail"></small> <button class="btn btn-xs btn-info" data-bind="click: newer, enable: welp.pagenumber() > 1">Newer &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <footer>
+            <div class="row">
+                <div class="col-lg-12">
+                    <p>Made by Vittoros, fork it at <a href="https://github.com/kriberg/welp/">https://github.com/kriberg/welp/</a></p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script src="js/libs/bootstrap.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+/*
+ * Change the name and the ID to whoever is welping.
+ * You can find the ID on dotlan
+ */
+var settings = {
+        corporationID: 144749962,
+        corporation: 'Evolution'
+}
