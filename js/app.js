@@ -35,6 +35,7 @@ function WelpViewModel() {
     self.fleetcommander = ko.observable('');
     self.fleetname = ko.observable('');
     self.showExport = ko.observable(false);
+    self.loading = ko.observable(false);
 
 
     /* killmail filters */
@@ -55,20 +56,26 @@ function WelpViewModel() {
         return url;
     }
     self.updateKillMails = function() {
+        self.killmails([]);
+        self.loading(true);
         $.getJSON(self.filterMails(), function(allmails) {
             if(!allmails || allmails.length == 0) {
-                $("killMailList").html("<h1>No killmails found</h1>");
+                $("#killMailList").html('<h2 class="text-center">No killmails found</h2>');
+                self.newestMail('');
+                self.oldestMail('');
+            } else {
+                var mappedKillMails = $.map(allmails, function(mail) { 
+                    if(!mail)
+                        return;
+                    var km = new KillMail(mail);
+                    //km.checkFitting(doctrines)
+                    return km;
+                });
+                self.killmails(mappedKillMails);
+                self.newestMail(self.killmails()[0].killTime());
+                self.oldestMail(self.killmails()[allmails.length-1].killTime());
             }
-            var mappedKillMails = $.map(allmails, function(mail) { 
-                if(!mail)
-                    return;
-                var km = new KillMail(mail);
-                //km.checkFitting(doctrines)
-                return km;
-            });
-            self.killmails(mappedKillMails);
-            self.newestMail(self.killmails()[0].killTime());
-            self.oldestMail(self.killmails()[allmails.length-1].killTime());
+            self.loading(false);
         });
     }
     self.updateKillMails();
@@ -100,6 +107,7 @@ function WelpViewModel() {
     }
     self.openExport = function() {
         self.showExport(true);
+        $("#exportmodal").modal('show');
         var data = 'FC: '+self.fleetcommander()+'\n';
         data += 'Fleet: '+self.fleetname()+'\n';
         data += '----------------------------\n';
@@ -112,6 +120,7 @@ function WelpViewModel() {
         self.exportdata(data);
     }
     self.closeExport = function () {
+        $("#exportmodal").modal('hide');
         self.showExport(false);
     }
 
@@ -126,6 +135,11 @@ function WelpViewModel() {
         }
     }
 }
-
+var solarsystem_names_typeahead = [];
+for(var k in solarsystems) solarsystem_names_typeahead.push(solarsystems[k]);
+$("#inputSolarsystem").typeahead({
+    name: 'solarsystems',
+    local: solarsystem_names_typeahead
+});
 welp = new WelpViewModel()
 ko.applyBindings(welp);

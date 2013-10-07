@@ -5,11 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>welp</title>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/typeahead.js-bootstrap.css">
         <link href="css/blog-home.css" rel="stylesheet">
         <link rel="stylesheet" href="css/welp.css">
         <script src="//code.jquery.com/jquery.js"></script>
         <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script></script>
         <script src="js/libs/knockout-2.3.0.js"></script>
+        <script src="js/libs/typeahead.min.js"></script>
         <script src="js/solarsystems.js"></script>
         <script src="js/mapsolarsystems.js"></script>
         <script src="js/types.js"></script>
@@ -38,13 +40,23 @@
         </div>
     </nav>
     <div class="container">
-        <div class="export-overlay" data-bind="visible: showExport">
-            <div class="row text-center">
-                <button class="btn btn-primary" data-bind="click: closeExport">Close</button>
-            </div>
-            <div class="row text-center col-md-12">
-                <textarea class="form-control" rows="20" data-bind="value: exportdata"></textarea>
-            </div>
+        <div data-bind="visible: showExport">
+            <div id="exportmodal" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-bind="click: closeExport" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Copy/paste for forum</h4>
+                        </div>
+                        <div class="modal-body">
+                            <textarea class="form-control" rows="20" data-bind="value: exportdata"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-bind="click: closeExport">Close</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
         </div>
         <div class="row">
             <div class="col-md-8 row pager">
@@ -59,6 +71,9 @@
                 </div>
             </div>
             <div class="col-md-7">
+                <div class="text-center" data-bind="visible: loading">
+                    <img src="img/loading.gif" alt="Training fetch killmail feed to level 5" />
+                </div>
                 <div id="killMailList" data-bind="foreach: killmails" class="col-md-offset-1">
                     <div class="killmail">
                         <div class="row">
@@ -93,7 +108,7 @@
                     <h4>Filter losses</h4>
                     <div class="row">
                         <div class="col-md-12">
-                            <input type="text" placeholder="Solar system" class="form-control" id="inputSolarsystem" data-bind="text: solarsystem, value: solarsystem, valueUpdate: 'keyup', event: {keyup: checkSystemName}"></input>
+                            <input type="text" placeholder="Solar system" class="form-control typeahead" id="inputSolarsystem" data-bind="text: solarsystem, value: solarsystem, valueUpdate: 'keyup', event: {keyup: checkSystemName}"></input>
                         </div>
                     </div>
 <!--                    <div class="row">
