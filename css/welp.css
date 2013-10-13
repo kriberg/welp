@@ -1,9 +1,16 @@
 div.killmail {
     border-radius: 6px;
     background: #ddd;
-    margin-bottom: 10px;
+    margin: 5px;
     padding: 5px;
     border: 1px solid #aaa;
+    width: 48%;
+    height: 235px;
+}
+
+div.killmail div.bottom {
+    position: absolute;
+    bottom: 0px;
 }
 div.srp-request {
     margin: 5px 0px;

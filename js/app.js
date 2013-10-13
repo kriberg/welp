@@ -1,3 +1,14 @@
+function typeImage32(typeID) {
+    return "http://image.eveonline.com/Type/"+typeID+"_32.png";
+}
+function typeImage64(typeID) {
+    return "http://image.eveonline.com/Type/"+typeID+"_64.png";
+}
+
+function sortTypes(a, b) {
+    return a.typeID - b.typeID;
+}
+
 function KillMail(data) {
     this.killID = ko.observable(data.killID);
     this.killMailLink = ko.observable("https://zkillboard.com/detail/"+data.killID);
@@ -8,13 +19,46 @@ function KillMail(data) {
         this.ship = ko.observable(types[data.victim.shipTypeID]);
     else
         this.ship = ko.observable('Pod');
-    this.shipImage = ko.observable("http://image.eveonline.com/Type/"+data.victim.shipTypeID+"_64.png");
-    this.items = data.items;
     this.doctrine = ko.observable("N/A");
     this.corporation = ko.observable(data.victim.corporationName);
     this.corporationImage = ko.observable("http://image.eveonline.com/Corporation/"+data.victim.corporationID+"_32.png");
+    this.shipImage = ko.observable(typeImage64(data.victim.shipTypeID))
     this.onReimbursementTab = ko.observable(false);
+    this.showVictim = ko.observable(true);
+    this.showFitting = ko.observable(false);
+    this.switchText = ko.observable("Fitting");
+    this.switchView = function () {
+        this.showVictim(!this.showVictim());
+        this.showFitting(!this.showFitting());
+        if(this.showFitting()) {
+            this.switchText("Victim");
+            $("[data-toggle='tooltip']").tooltip({});
+        } else this.switchText("Fitting");
+    }
+    this.lows = ko.observable([]);
+    this.mids = ko.observable([]);
+    this.highs = ko.observable([]);
+    this.rigs = ko.observable([]);
+    this.subsystems = ko.observableArray([]);
 
+    for(var i in data.items) {
+        var item = data.items[i];
+        var name = types[item.typeID];
+        if(item.flag >= 11 && item.flag <= 18)
+            this.lows().push(item);
+        if(item.flag >= 19 && item.flag <= 26 && $.inArray(item.typeID, ammotypes) < 0)
+            this.mids().push(item);
+        if(item.flag >= 27 && item.flag <= 34 && $.inArray(item.typeID, ammotypes) < 0)
+            this.highs().push(item);
+        if(item.flag >= 92 && item.flag <= 99) 
+            this.rigs().push(item);
+        if(item.flag >= 125 && item.flag <= 132)
+            this.subsystems().push(item);
+    }
+    this.highs().sort(sortTypes);
+    this.mids().sort(sortTypes);
+    this.lows().sort(sortTypes);
+    this.rigs().sort(sortTypes);
     this.checkFitting =  function(doctrines) {
         if(this.ship in doctrines) {
             this.doctrine(doctrines.ship[0].name);
@@ -123,6 +167,9 @@ function WelpViewModel() {
         $("#exportmodal").modal('hide');
         self.showExport(false);
     }
+    self.inspectFit = function (killmail) {
+        console.log(killmail);
+    }
 
     /* events */
     self.checkSystemName = function () {
@@ -134,6 +181,8 @@ function WelpViewModel() {
             self.filterDisabled(false);
         }
     }
+
+    /* helpers */
 }
 var solarsystem_names_typeahead = [];
 for(var k in solarsystems) solarsystem_names_typeahead.push(solarsystems[k]);
